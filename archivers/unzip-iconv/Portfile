@@ -2,33 +2,50 @@
 
 PortSystem		1.0
 
-name			unzip
+name			unzip-iconv
 version			6.0
-maintainers		nomaintainer
+maintainers		false@wizard-limit.net
 categories		archivers sysutils
-platforms		darwin freebsd
+platforms		darwin
 description		Decompression compatible with pkunzip
+conflicts               port:unzip
 
 long_description \
 	UnZip is an extraction utility for archives compressed in .zip \
 	format (also called \"zipfiles\"). Although highly compatible both \
 	with PKWARE's PKZIP and PKUNZIP utilities for MS-DOS and with Info-ZIP's \
 	own Zip program, our primary objectives have been portability and \
-	non-MSDOS functionality.
+	non-MSDOS functionality. \
+	with alt-iconv-utf8 patch.
 
 homepage		http://www.info-zip.org/pub/infozip/UnZip.html
 master_sites		sourceforge:infozip
-distname		${name}[strsed $version g/\\.//]
+distname		unzip[strsed $version g/\\.//]
 
 checksums           md5     62b490407489521db863b523a7f86375 \
                     sha1    abf7de8a4018a983590ed6f5cbd990d4740f8a22 \
                     rmd160  48af66606e9472e45fbb94bc4e285da23d1b89ba
 
+patch_sites             https://bugs.archlinux.org/task/15256
+set patchfile               unzip60-alt-iconv-utf8.patch
+patch.pre_args -p1
+
 use_configure	no
+
+pre-fetch {
+    curl fetch https://bugs.archlinux.org/task/15256?getfile=3685 ${filespath}/${patchfile}
+    patchfiles-append ${patchfile}
+}
+
+post-patch {
+    reinplace -E "/^CF =/s|$| -DNATIVE -I/opt/local/include|" \
+	${worksrcpath}/unix/Makefile
+}
 
 build.target	macosx
 build.args	    -f unix/Makefile \
-                CC="${configure.cc}"
+                CC="${configure.cc}" \
+                LFLAGS1="-L/opt/local/lib -liconv"
 set localflags ${configure.cc_archflags}
 pre-build {
     # have to add this here so variants can modify it
