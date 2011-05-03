@@ -9,6 +9,7 @@ categories		archivers sysutils
 platforms		darwin
 description		Decompression compatible with pkunzip
 conflicts               port:unzip
+depends_lib             port:libiconv
 
 long_description \
 	UnZip is an extraction utility for archives compressed in .zip \
@@ -22,19 +23,24 @@ homepage		http://www.info-zip.org/pub/infozip/UnZip.html
 master_sites		sourceforge:infozip
 distname		unzip[strsed $version g/\\.//]
 
-checksums           md5     62b490407489521db863b523a7f86375 \
+checksums           unzip60.tar.gz \
+                    md5     62b490407489521db863b523a7f86375 \
                     sha1    abf7de8a4018a983590ed6f5cbd990d4740f8a22 \
-                    rmd160  48af66606e9472e45fbb94bc4e285da23d1b89ba
+                    rmd160  48af66606e9472e45fbb94bc4e285da23d1b89ba \
+                    unzip60-alt-iconv-utf8.patch \
+                    md5     4dcfb2084e9db5a3f411f470d92ab2a4 \
+                    sha1    7cb046b09becd96a3901b8ac35f77741695c4a8a \
+                    rmd160  ff40983550dbef19dab5b1327d3427c742f8117c
 
 patch_sites             https://bugs.archlinux.org/task/15256
-set patchfile               unzip60-alt-iconv-utf8.patch
+set patchfile           unzip60-alt-iconv-utf8.patch
+patchfiles              ${patchfile}
 patch.pre_args -p1
 
 use_configure	no
 
 pre-fetch {
-    curl fetch https://bugs.archlinux.org/task/15256?getfile=3685 ${filespath}/${patchfile}
-    patchfiles-append ${patchfile}
+    curl fetch https://bugs.archlinux.org/task/15256?getfile=3685 ${distpath}/${patchfile}
 }
 
 post-patch {
