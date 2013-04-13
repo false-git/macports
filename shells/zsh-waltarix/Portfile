@@ -54,10 +54,6 @@ patch.pre_args -p1
 set help ${prefix}/share/${name}/${version}/help
 set doc ${prefix}/share/doc/${name}
 
-# pre-fetch {
-#    curl fetch ${distpath}/${patchfile}
-# }
-
 post-patch {
     reinplace -E "s|{HELPDIR:-.+}|{HELPDIR:-${help}}|" \
         ${worksrcpath}/Functions/Misc/run-help
