@@ -46,8 +46,6 @@ checksums               ${distname}${extract.suffix} \
                             sha256  c588df6513999280c1c5c09ca6ce9614693a1e94c374e95e2a4240f1f647ba1c
 
 patch_sites             https://raw.github.com/gist
-#set patchfile           1407905 143346
-#patchfiles              ${patchfile}
 patchfiles              1407905 1403346
 patch.pre_args -p1
 
