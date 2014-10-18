@@ -4,77 +4,75 @@
 PortSystem              1.0
 
 name                    zsh-waltarix
-version                 5.0.2
+version                 5.0.7
 distname                zsh-${version}
-revision                3
 categories              shells
 platforms               darwin
-maintainers             false
 license                 Permissive
-conflicts               zsh
+maintainers             false
 
 description             Zsh is a UNIX command interpreter (shell) with waltarix patch.
-long_description        Zsh is a UNIX command interpreter (shell) which of \
-                        the standard shells most resembles the Korn shell \
-                        (ksh), although it is not completely compatible. \
-                        It includes enhancements of many types, notably in \
-                        the command-line editor, options for customising \
-                        its behaviour, filename globbing, features to make \
-                        C-shell (csh) users feel more at home and extra \
-                        features drawn from tcsh (another 'custom' shell).
-
+long_description        Zsh is a UNIX command interpreter (shell) which \
+                        of the standard shells most resembles the Korn \
+                        shell (ksh), although it is not completely \
+                        compatible. It includes enhancements of many \
+                        types, notably in the command-line editor, \
+                        options for customising its behaviour, filename \
+                        globbing, features to make C-shell (csh) users \
+                        feel more at home and extra features drawn from \
+                        tcsh (another 'custom' shell).
 homepage                http://www.zsh.org/
 
-use_bzip2               yes
-master_sites            sourceforge:project/zsh/zsh/${version} \
-                        http://www.zsh.org/pub/ \
-                        ftp://ftp.zsh.org/pub/ \
-                        ftp://ftp.fu-berlin.de/unix/shells/zsh/ \
-                        ftp://ftp.icm.edu.pl/vol/rzm1/zsh/
-distfiles-append        ${distname}-doc${extract.suffix}
-checksums               ${distname}${extract.suffix} \
-                            rmd160  eea2328a28e9f022ab9f49583622a9c3bd6114a7 \
-                            sha256  eb220ae5a8076191ec6b4c6a5a2f18122d074a19f25b45f0320b44b8166c5a03 \
-                        ${distname}-doc${extract.suffix} \
-                            rmd160  a42bd1b85cae98158391d6aa120c6f9d4735ef7b \
-                            sha256  99ee08cfc91935af8714bd98db652f016d6c7a8a71ba7c6d6223910cd0b7fbf1 \
-                        1407905 \
-                            rmd160  144e669761fc126375416eba6ae292390b83a759 \
-                            sha256  7f2eda34fd65547984c96e15d394883224848b735fee235b93cb396cbe75e6d2 \
-                        1403346 \
-                            rmd160  bb8d1e3e9be342c61cdbf5d2d5ed485bdd791687 \
-                            sha256  c588df6513999280c1c5c09ca6ce9614693a1e94c374e95e2a4240f1f647ba1c
+depends_build           bin:makeinfo:texinfo
+depends_skip_archcheck-append texinfo
 
-patch_sites             https://raw.github.com/gist
-patchfiles              1407905 1403346
-patch.pre_args -p1
-
-set help ${prefix}/share/${name}/${version}/help
-set doc ${prefix}/share/doc/${name}
-
-post-patch {
-    reinplace -E "s|{HELPDIR:-.+}|{HELPDIR:-${help}}|" \
-        ${worksrcpath}/Functions/Misc/run-help
-}
-
-# Perl is only needed in post-destroot.
-depends_build           bin:perl:perl5
-depends_lib             port:libiconv \
+depends_lib             port:gdbm \
+                        port:libiconv \
                         port:ncurses \
-                        port:gdbm \
                         port:pcre
 
-configure.args          --htmldir=${doc}/html \
-                        --enable-cap \
-                        --enable-maildir-support \
-                        --enable-multibyte \
+master_sites            sourceforge:project/zsh/zsh/${version}:src \
+                        sourceforge:project/zsh/zsh-doc/${version}:doc \
+                        http://www.zsh.org/pub/:src \
+                        http://www.zsh.org/pub/:doc \
+                        ftp://ftp.zsh.org/pub/:src \
+                        ftp://ftp.zsh.org/pub/:doc \
+                        ftp://ftp.fu-berlin.de/unix/shells/zsh/:src \
+                        ftp://ftp.fu-berlin.de/unix/shells/zsh/:doc \
+                        ftp://ftp.icm.edu.pl/vol/rzm1/zsh/:src \
+                        ftp://ftp.icm.edu.pl/vol/rzm1/zsh/:doc
+
+use_bzip2               yes
+distfiles               ${distname}${extract.suffix}:src \
+                        ${distname}-doc${extract.suffix}:doc
+
+checksums               ${distname}${extract.suffix} \
+                            rmd160  4b1aac38996414783522762b5a8677533bf77d2d \
+                            sha256  544e27de81740286b916d1d77c9f48ad7c26ad7943ed96d278abee67cf6704b3 \
+                        ${distname}-doc${extract.suffix} \
+                            rmd160  d9ed5e5fe84bcadb174ddfffc1394e542c10361a \
+                            sha256  43e8665ba9d9eca8370c64e2d4846e84f9111c628e5792f2aa639a7fb209fcf1 \
+                        zsh-ambiguous-width-cjk.patch \
+                            rmd160  144e669761fc126375416eba6ae292390b83a759 \
+                            sha256  7f2eda34fd65547984c96e15d394883224848b735fee235b93cb396cbe75e6d2
+
+patch_sites             https://gist.githubusercontent.com/waltarix/1407905/raw/c1c34f964b4d71fa478268ad314929f8d7f86ff1/
+patchfiles              zsh-ambiguous-width-cjk.patch
+patch.pre_args -p1
+
+set doc ${prefix}/share/doc/${name}
+
+configure.args          --enable-cap \
                         --enable-pcre \
-                        --enable-zsh-secure-free \
+                        --htmldir=${doc}/html \
                         --with-tcsetpgrp \
+                        --enable-multibyte \
                         --enable-locale \
                         --with-term-lib=ncursesw \
                         DL_EXT=bundle
 
+# NOTE: As of 5.0.6, the zpty tests fail when run with MacPorts but not
+# when run directly from the command line.
 test.run                yes
 test.target             check
 
@@ -87,22 +85,18 @@ post-destroot {
     system -W ${man} "soelim man1/zshall.1 > zshall.1.soelim"
     move -force ${man}/zshall.1.soelim ${man}/man1/zshall.1
 
-    # Generate run-help help files; see zshcontrib(1).
-    xinstall -d ${destroot}${help}
-    system -W ${destroot}${help} "man ${man}/man1/zshbuiltins.1 | colcrt - | \
-        perl ${worksrcpath}/Util/helpfiles"
-
     # Install any straggling documentation.
     xinstall -m 0644 -W ${worksrcpath} \
         ChangeLog FEATURES LICENCE META-FAQ NEWS README ${destroot}${doc}
     xinstall -d ${destroot}${doc}/pdf
-    eval xinstall -m 0644 [glob ${worksrcpath}/Doc/*.pdf] ${destroot}${doc}/pdf
+    xinstall -m 0644 -W ${worksrcpath}/Doc \
+        intro.a4.pdf intro.us.pdf zsh.pdf ${destroot}${doc}/pdf
 }
 
 notes "
 To set MacPorts' ${name} as default login shell, run:
 
-    sudo chpass -s ${prefix}/bin/${name} \${USER}
+    sudo chpass -s ${prefix}/bin/${name} \$USER
 
 To be able to switch default shells to or from ${name} without superuser\
 privileges, add it to /etc/shells:
